@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sentry Tests</title>
+  <script src="https://browser.sentry-cdn.com/4.0.5/bundle.min.js" crossorigin="anonymous"></script>
+  <script>
+    Sentry.init({ dsn: 'https://b76e98af7d2049baa4bb9f7a21c35bf5@sentry.io/1289222' });
+    // Exception capturing (Includes error type and message)
+    try {
+      aFunctionThatMightFail();
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+
+    // Message Capturing (Arbitrary)
+    Sentry.captureMessage('from captureMessage(): Something weng wrong');
+
+  </script>
+</head>
+
+<body>
+  <h1>Sentry Tests</h1>
+  <script src="index.js"></script>
+</body>
+
+</html>
