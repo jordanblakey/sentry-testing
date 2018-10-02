@@ -8,7 +8,16 @@
   <title>Sentry Tests</title>
   <script src="https://browser.sentry-cdn.com/4.0.5/bundle.min.js" crossorigin="anonymous"></script>
   <script>
-    Sentry.init({ dsn: 'https://b76e98af7d2049baa4bb9f7a21c35bf5@sentry.io/1289222' });
+    Sentry.init({
+      dsn: 'https://b76e98af7d2049baa4bb9f7a21c35bf5@sentry.io/1289222',
+      environment: 'staging',
+      release: 'PUL-arbitrary-jira-shit',
+      beforeSend: (event) => {
+        // Check if it is an exception -> Show report dialog
+        event.exception && Sentry.showReportDialog();
+        return event;
+      }
+     });
     // Exception capturing (Includes error type and message)
     try {
       aFunctionThatMightFail();
@@ -16,8 +25,59 @@
       Sentry.captureException(err);
     }
 
+    Sentry.init({
+    })
+
     // Message Capturing (Arbitrary)
     Sentry.captureMessage('from captureMessage(): Something weng wrong');
+
+    let user = {
+      email: 'test@mail.com'
+    }
+
+    // Add details about anything leading up to the error
+    Sentry.addBreadcrumb({
+      category: 'auth',
+      message: 'Authenticated user ' + user.email,
+      level: 'error'
+    })
+
+
+
+    // Set a scope for the error to know the context in which it occured.
+    Sentry.configureScope((scope) => {
+      scope.setTag("page_locale", "de-at");
+    });
+    Sentry.configureScope((scope) => {
+      scope.setUser({"email": "john.doe@example.com"});
+    });
+    Sentry.configureScope((scope) => {
+      scope.setExtra("character_name", "Mighty Fighter");
+    });
+
+    // More succinctly
+    Sentry.configureScope((scope) => {
+      scope.setTag("my-tag", "my value");
+      scope.setUser({
+        id: 42,
+        email: "john.doe@example.com"
+      });
+      scope.setFingerprint(['my-view-function']);
+    });
+
+    // Context managed scope
+    Sentry.withScope(scope => {
+      scope.setTag("my-tag", "my value");
+      scope.setLevel('warning');
+      Sentry.captureException(new Error('my error'));
+    });
+
+    try {
+      aFunctionThatMightFail();
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+
 
   </script>
 </head>
